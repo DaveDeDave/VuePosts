@@ -3,6 +3,8 @@
 ## Introduction
 This is simply another vue.js web application. I did this project to practice front-end rendering skills and try out a framework like vue.js.
 
+![preview](https://raw.githubusercontent.com/DaveDeDave/VuePosts/main/docs/preview.png)
+
 ## Launching the application
 For production
 ```
