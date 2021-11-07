@@ -24,7 +24,7 @@ The following users are available at application start-up for testing purposes
 | carlo | VuePosts12. |
 | mark | VuePosts12. |
 
-## What did i use
+## What did i use?
 [![nodejs](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![expressjs](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)](https://expressjs.com/)
 [![vuejs3](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vue.js&logoColor=4FC08D)](https://v3.vuejs.org/)
