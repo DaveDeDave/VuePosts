@@ -1,0 +1,131 @@
+{
+  "message": {
+    "home": {
+      "welcomeTitle": "Welcome to this VueJs Demo application",
+      "welcomeDescription": "What is this? It's simply a VueJS application to test the client side rendering potentiality. VueJS is a client-side rendering framework... bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. And so on.",
+      "feature": {
+        "javascript": "Javascript",
+        "javascriptDescription": "Vue is powered by javascript, the best language in town!",
+        "clientSide": "Client side",
+        "clientSideDescription": "This is a client side rendering application. It means the server provides you the stuff for the app and your computer elaborates it in order to display.",
+        "fast": "Fast",
+        "fastDescription": "Extremely fast application, on another level compared to the competition.",
+        "programmerFriendly": "Programmer-friendly",
+        "programmerFriendlyDescription": "Easy syntax and fast developement for every programmer.",
+        "debugging": "Debugging",
+        "debuggingDescription": "Error detection with appropriate messages for a fast debugging.",
+        "other": "Other",
+        "otherDescription": "Discover more on the Vue.js official website and documentation."
+      },
+      "getStarted": "Get started",
+      "getStartedDescription": "You should have the following:",
+      "getStartedLi1": "A computer",
+      "getStartedLi2": "An internet connection",
+      "getStartedLi3": "A keyboard",
+      "getStartedLi4": "A mouse",
+      "whatCanIDo": "What can i do?",
+      "whatCanIDoDescription": "You can:",
+      "whatCanIDoLi1": "Register your personal account",
+      "whatCanIDoLi2": "Write posts",
+      "whatCanIDoLi3": "Answer other users posts",
+      "whatCanIDoLi4": "Read these informations",
+      "join": "Join",
+      "joinNow": "Join now",
+      "developer": "Developer",
+      "register": "Register",
+      "repeatPassword": "Repeat password",
+      "switchLogin": "Switch to login",
+      "switchRegistration": "Switch to registration"
+    },
+    "dashboard": {
+      "writePost": "Write a post",
+      "editAccount": "Edit account",
+      "fullname": "Full Name",
+      "email": "Email",
+      "address": "Address",
+      "registrationDate": "Registration Date",
+      "years": "Years since registration",
+      "thisYear": "This year",
+      "yearsAgo": "1 year ago | {n} years ago",
+      "statistics": "Statistics",
+      "posts": "Posts",
+      "comments": "Comments",
+      "deleteAccount": "Do you want to delete your account?",
+      "deleteAccountConfirm": "Enter the code below to confirm",
+      "privateProfileTitle": "Nothing to see here",
+      "privateProfileDescription": "This user's account is private"
+    },
+    "editAccount": {
+      "name": "Name",
+      "surname": "Surname",
+      "email": "Email",
+      "job": "Job",
+      "address": "Address",
+      "privateAccount": "Private account",
+      "oldPassword": "Old password",
+      "newPassword": "New password",
+      "newPasswordCheck": "Confirm new password",
+      "successInfo": "Informations updated succesfully",
+      "successPassword": "Password updated succesfully",
+      "changePassword": "Change password",
+      "saveChanges": "Save changes"
+    },
+    "errors": {
+      "deletePost": {
+        "notFound": "The post you want to delete doesn't exists",
+        "authorizationRequired": "You can't delete other user's post"
+      },
+      "createComment": {
+        "notFound": "The post you want to comment doesn't exists"
+      },
+      "emptyFields": "You have to compile all fields",
+      "differentPasswords": "Passwords have to be the same",
+      "weakPassword": "Password must contain: 1 lower and 1 upper key, 1 number, 1 symbol and must be at least 6 characters long",
+      "wrongCredentials": "The credentials are wrong",
+      "userAlreadyExists": "This username is already in use",
+      "unknownError": "Something brokes"
+    },
+    "writePost": {
+      "publish": "Publish",
+      "insertTitle": "Insert a title"
+    },
+    "posts": {
+      "postedBy": "Posted by",
+      "comments": "0 comments | 1 comment | {n} comments",
+      "reply": "Reply",
+      "deletePostConfirm": "Do you want to delete the post?",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "loginToComment": "Login to comment"
+    },
+    "about": {
+      "questionsAnswers": "Questions & Answers",
+      "why": "Why did you develop this web application?",
+      "whyAnswer": "I developed this web application to practice my front-end skills and to try out a framework like vue.js",
+      "how": "How did you develop it?",
+      "howAnswerServer": "On the server side, i used node.js and express, and also:",
+      "howServer1": "Sqlite as DB",
+      "howServer2": "Argon2 as password-hashing",
+      "howServer3": "Dompurify",
+      "howServer4": "Authentication handled via JWT",
+      "howAnswerClient": "On the client side, i used vue.js, and furthermore:",
+      "howClient1": "i18n for the internazionalization",
+      "howClient2": "Tiptap as editor",
+      "howClient3": "Bootstrap for css styles",
+      "howClient4": "Vite as build tool",
+      "developerDescription": "is the developer of this web application. He has a great passion for computer science and has experience in web and mobile application development. He has also a great interest for cyber security."
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you are looking for doesn't exist"
+    },
+    "error500": {
+      "title": "Something brokes",
+      "description": "Something seems to have stopped working"
+    },
+    "registration": "Registration",
+    "search": "Search",
+    "technologies": "Technologies",
+    "logout": "Logout"
+  }
+}

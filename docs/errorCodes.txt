@@ -1,0 +1,33 @@
+Server type of errors:
+
+code: EmptyFields
+status: 400
+description: You have to compile all fields
+
+code: DifferentPasswords
+status: 400
+description: Passwords need to be the same.
+
+code: WeakPassword
+status: 400
+description: Password is not strong enough
+
+code: UserAlreadyExists
+status: 400
+description: Username is already in use
+
+code: WrongCredentials
+status: 403
+description: Username or password are not correct
+
+code: AuthorizationRequired
+status: 403
+description: Authorization is required
+
+code: NotFound
+status: 404
+description: Something has not been found
+
+code: UnknownError
+status: 500
+description: An unknown error has happened

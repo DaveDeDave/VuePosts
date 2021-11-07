@@ -1,0 +1,175 @@
+/** Background colors **/
+.bg-green {
+  background-color: #1aa179;
+}
+
+.bg-dark-green {
+  background-color: #13795b;
+}
+
+/** Text colors **/
+.text-green {
+  color: #13795b!important;
+}
+
+/** Text dimensions **/
+@media (min-width: 576px) {
+  .h3-xs {
+    font-size: calc(1.3rem + .6vw)!important;
+  }
+}
+
+/** Sizing **/
+@media (min-width: 768px) {
+  .w-sm-75 {
+    max-width: 75%!important;
+  }
+}
+
+@media (min-width: 992px) {
+  .w-md-75 {
+    max-width: 75%!important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .w-lg-50 {
+    max-width: 50%!important;
+  }
+}
+
+/** Margins **/
+@media (min-width: 1400px) {
+  .mx-xl-6 {
+    margin-left: 10rem!important;
+    margin-right: 10rem!important;
+  }
+}
+
+@media (min-width: 992px) {
+  .mb-md-1 {
+    margin-bottom: 0.25rem!important;
+  }
+}
+
+/** Locale **/
+.localeFlag {
+  transition: all 0.5s;
+}
+
+.localeFlag:hover {
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.localeFlag:active {
+  opacity: 1;
+}
+
+/** Form stuff **/
+.form-control-green:focus {
+  border-color:#1aa179!important;
+  box-shadow: 0 0 0 0.25rem #1aa17975!important;
+}
+
+.form-control-light:focus {
+  border-color:#f8f9fa!important;
+  box-shadow: 0 0 0 0.25rem #f8f9fa75!important;
+}
+
+.form-control-no-shadow:focus {
+  box-shadow: none!important;
+}
+
+.search:active {
+  background-color: #cccfd1
+}
+
+.btn-search {
+  border-radius: 0 1.4rem 1.4rem 0;
+}
+
+.input-search {
+  border-radius: 1.4rem 0 0 1.4rem;
+}
+
+/** Buttons **/
+.btn-dark-green {
+  color: #fff;
+  background-color: #13795b;
+  border-color: #13795b;
+}
+
+.btn-dark-green:hover {
+  color: #fff;
+  background-color: #126149;
+  border-color: #126149;
+}
+
+.btn-dark-green:active {
+  color: #fff;
+  background-color: #126149;
+  border-color: #126149;
+  box-shadow: 0 0 0 0.25rem #19875480;
+}
+
+.btn-dark-green:focus {
+  box-shadow: 0 0 0 0.25rem #19875480;
+}
+
+.btn-outline-dark-green {
+  color: #13795b;
+  border-color: #13795b;
+}
+
+.btn-outline-dark-green:hover {
+  color: #fff;
+  background-color: #13795b;
+}
+
+.btn-outline-dark-green:active {
+  color: #fff;
+  background-color: #13795b;
+  box-shadow: 0 0 0 0.25rem #19875480;
+}
+
+.btn-outline-dark-green:focus {
+  box-shadow: 0 0 0 0.25rem #19875480;
+}
+
+/** Checkboxes **/
+.checkbox-green:checked {
+  background-color: #13795b;
+  border-color: #13795b;
+}
+
+.checkbox-green:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2313795b'/%3e%3c/svg%3e")!important;
+  border-color: #13795b;
+  box-shadow: 0 0 0 0.25rem #13795b25;
+}
+
+.checkbox-green:checked:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")!important;
+}
+
+/** Posts **/
+.post:hover {
+  /*cursor: pointer;*/
+  border: 1px solid #00000038;
+  border-radius: 0.25rem;
+}
+
+.post:active {
+  border: 1px solid #00000048;
+  border-radius: 0.25rem;
+}
+
+/** Comments button **/
+.comments:hover {
+  background-color: #dbdbdb9e;
+}
+
+.border-radius-post {
+  border-radius:0.20rem 0rem 0rem 0.20rem;
+}

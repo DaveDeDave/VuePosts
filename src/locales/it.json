@@ -1,0 +1,131 @@
+{
+  "message": {
+    "home": {
+      "welcomeTitle": "Benvenuto in questa applicazione in VueJS",
+      "welcomeDescription": "Cos'è? È semplicemente un applicazione sviluppata in VueJS per testare le potenzialità del rendering lato client. VueJS è un framework per il rendering lato client... bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla. E altro ancora.",
+      "feature": {
+        "javascript": "Javascript",
+        "javascriptDescription": "VueJS è basato su javascript, il miglior linguaggio in zona!",
+        "clientSide": "Lato client",
+        "clientSideDescription": "Questa è un'applicazione lato client. Significa che il server ti fornisce quel che serve e il tuo computer lo elabora per visualizzare l'applicazione.",
+        "fast": "Veloce",
+        "fastDescription": "Estremamente veloce, su un altro livello rispetto alla concorrenza",
+        "programmerFriendly": "Programmer-friendly",
+        "programmerFriendlyDescription": "Sintassi semplice e sviluppo veloce per qualsiasi programmatore.",
+        "debugging": "Debugging",
+        "debuggingDescription": "Rilevamente degli errori con messaggi appropriati per un debug fulmineo.",
+        "other": "Altro",
+        "otherDescription": "Scopri molto altro su Vue.js sul suo sito ufficiale e nella sua documentazione."
+      },
+      "getStarted": "Inizia",
+      "getStartedDescription": "Dovresti avere le seguenti cose:",
+      "getStartedLi1": "Un computer",
+      "getStartedLi2": "Una connessione a internet",
+      "getStartedLi3": "Una tastiera",
+      "getStartedLi4": "Un mouse",
+      "whatCanIDo": "Cosa posso fare?",
+      "whatCanIDoDescription": "Puoi:",
+      "whatCanIDoLi1": "Registrare il tuo account personale",
+      "whatCanIDoLi2": "Scrivere dei post",
+      "whatCanIDoLi3": "Rispondere ai post di altri utenti",
+      "whatCanIDoLi4": "Leggere queste informazioni",
+      "join": "Unisciti",
+      "joinNow": "Unisciti ora",
+      "developer": "Sviluppatore",
+      "register": "Registrati",
+      "repeatPassword": "Ripeti password",
+      "switchLogin": "Passa al login",
+      "switchRegistration": "Passa alla registrazione"
+    },
+    "dashboard": {
+      "writePost": "Scrivi un post",
+      "editAccount": "Modifica account",
+      "fullname": "Nome Completo",
+      "email": "Email",
+      "address": "Indirizzo",
+      "registrationDate": "Data di registrazione",
+      "years": "Anni passati dalla registrazione",
+      "thisYear": "Quest'anno",
+      "yearsAgo": "1 anno fa | {n} anni fa",
+      "statistics": "Statistiche",
+      "posts": "Post",
+      "comments": "Commenti",
+      "deleteAccount": "Vuoi eliminare davvero il tuo account?",
+      "deleteAccountConfirm": "Inserisci il codice qui sotto per confermare",
+      "privateProfileTitle": "Niente da vedere qua",
+      "privateProfileDescription": "L'account di questo utente è privato"
+    },
+    "editAccount": {
+      "name": "Nome",
+      "surname": "Cognome",
+      "email": "Email",
+      "job": "Lavoro",
+      "address": "Indirizzo",
+      "privateAccount": "Account privato",
+      "oldPassword": "Password vecchia",
+      "newPassword": "Password nuova",
+      "newPasswordCheck": "Conferma la password nuova",
+      "successInfo": "Informazioni aggiornate con successo",
+      "successPassword": "Password aggiornata con successo",
+      "changePassword": "Cambia password",
+      "saveChanges": "Salva cambiamenti"
+    },
+    "errors": {
+      "deletePost": {
+        "notFound": "Il post che vuoi eliminare non esiste",
+        "authorizationRequired": "Non puoi eliminare i post degli altri utenti"
+      },
+      "createComment": {
+        "notFound": "Il post che vuoi commentare non esiste"
+      },
+      "emptyFields": "Devi compilare tutti i campi",
+      "differentPasswords": "Le password devono essere uguali",
+      "weakPassword": "La password deve contenere: 1 carattere minuscolo e 1 minuscolo, 1 numero, 1 simbolo e deve essere lunga almeno 6 caratteri",
+      "wrongCredentials": "Le credenziali non sono corrette",
+      "userAlreadyExists": "Questo username è già in uso",
+      "unknownError": "Qualcosa è andato storto"
+    },
+    "writePost": {
+      "publish": "Pubblica",
+      "insertTitle": "Inserisci un titolo"
+    },
+    "posts": {
+      "postedBy": "Postato da",
+      "comments": "0 commenti | 1 commento | {n} commenti",
+      "reply": "Ripondi",
+      "deletePostConfirm": "Eliminare il post?",
+      "confirm": "Conferma",
+      "cancel": "Annulla",
+      "loginToComment": "Accedi per commentare"
+    },
+    "about": {
+      "questionsAnswers": "Domande e Risposte",
+      "why": "Perché hai sviluppato questa applicazione web?",
+      "whyAnswer": "Ho sviluppato questa applicazione web per esercitare le mie abilità front-end e per provare un framework come vue.js",
+      "how": "Come l'hai sviluppata?",
+      "howAnswerServer": "Lato server, ho usato node.js e express, e inoltre:",
+      "howServer1": "Sqlite come DB",
+      "howServer2": "Argon2 come password-hashing",
+      "howServer3": "Dompurify",
+      "howServer4": "Autenticazione gestita tramite jwt",
+      "howAnswerClient": "Per quanto riguarda il lato client ho usato vue.js, e inoltre:",
+      "howClient1": "i18n per l'internazionalizzazione",
+      "howClient2": "Tiptap come editor",
+      "howClient3": "Bootstrap per gli stili css",
+      "howClient4": "Vite come build tool",
+      "developerDescription": "è lo sviluppatore di questa applicazione web. Ha una grande passione per l'informatica e ha esperienza nello sviluppo di applicazione web e mobili. Ha anche un grande interesse per la sicurezza informatica"
+    },
+    "notFound": {
+      "title": "Pagina non trovata",
+      "description": "La pagina che stai cercando non esiste"
+    },
+    "error500": {
+      "title": "Qualcosa si è rotto",
+      "description": "Sembra che qualcosa abbia smesso di funzionare"
+    },
+    "registration": "Registrazione",
+    "search": "Cerca",
+    "technologies": "Tecnologie",
+    "logout": "Logout"
+  }
+}
