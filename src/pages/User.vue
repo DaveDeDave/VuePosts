@@ -87,6 +87,7 @@
 <script>
   import NotFound from './NotFound.vue';
   import Error500 from './Error500.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -118,35 +119,28 @@
     },
     methods: {
       async getUserInfo() {
-        await fetch(`/api/user/info/${this.$route.params.username}`)
-          .then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-                
-            return r;
-          }).then(response => {
-            if(response.redirect) {
+        axios(`/api/user/info/${this.$route.params.username}`)
+          .then(response => {
+            if(response.data.redirect) {
               return this.$router.replace('/dashboard');
             }
 
-            this.privateAccount = response.privateAccount
+            this.privateAccount = response.data.privateAccount
             if(!this.privateAccount) {
-              this.username = response.username;
-              this.name = response.name;
-              this.surname = response.surname;
-              this.email = response.email;
-              this.job = response.job;
-              this.address = response.address;
-              this.registrationDate = response.registrationDate;
-              this.yearsSinceRegistration = this.getYears(response.registrationDate);
-              this.numberOfPosts = response.nPosts;
-              this.numberOfComments = response.nComments;
+              this.username = response.data.username;
+              this.name = response.data.name;
+              this.surname = response.data.surname;
+              this.email = response.data.email;
+              this.job = response.data.job;
+              this.address = response.data.address;
+              this.registrationDate = response.data.registrationDate;
+              this.yearsSinceRegistration = this.getYears(response.data.registrationDate);
+              this.numberOfPosts = response.data.nPosts;
+              this.numberOfComments = response.data.nComments;
             }
-          }).catch(e => {
-            if(e.message == 'NotFound') { 
+          })
+          .catch(e => {
+            if(e.response.data.code == 'NotFound') { 
               this.error404 = true;
             } else {
               this.error500 = true;

@@ -1,4 +1,6 @@
 const express = require('express');
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
 const db = require('../db/db');
 const auth = require('../middleware/auth');
 const router = express.Router();
@@ -18,7 +20,7 @@ const ALLOWED_TAGS = ['p', 'strong', 'em', 's', 'mark', 'h1', 'h2', 'h3', 'h4', 
  * - AuthorizationRequired
  * On success creates the new post
  */
- router.post('/new', auth.required, (req, res, next) => {
+ router.post('/new', csrfProtection, auth.required, (req, res, next) => {
   const { title, content } = req.body;
 
   if(!title || !content) {
@@ -41,7 +43,7 @@ const ALLOWED_TAGS = ['p', 'strong', 'em', 's', 'mark', 'h1', 'h2', 'h3', 'h4', 
  * - AuthorizationRequired
  * On success deletes the specified post
  */
-router.post('/delete', auth.required, (req, res, next) => {
+router.post('/delete', csrfProtection, auth.required, (req, res, next) => {
   const { id } = req.body;
 
   db.deletePost({id, username: req.user.username}).then(() => {

@@ -72,6 +72,7 @@
 
 <script>
   import Error500 from './Error500.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -101,56 +102,36 @@
     },
     methods: {
       async getUserInfo() {
-        fetch('/api/user/info').then(async response => {
-          let r = await response.json();
-
-          if(response.status != 200) {
-            throw new Error(r.code);
-          }
-              
-          return r;
-        }).then(response => {
-          this.name = response.name;
-          this.surname = response.surname;
-          this.email = response.email;
-          this.job = response.job;
-          this.address = response.address;
-          document.getElementById("privateAccount").checked = response.privateAccount;
-        }).catch(e => {
-          if(e.message == 'AuthorizationRequired') {
-            this.$router.push('/');
-          } else {
-            this.error500 = true;
-          }
-        });
+        axios.get('/api/user/info')
+          .then(response => {
+            this.name = response.data.name;
+            this.surname = response.data.surname;
+            this.email = response.data.email;
+            this.job = response.data.job;
+            this.address = response.data.address;
+            document.getElementById("privateAccount").checked = response.data.privateAccount;
+          })
+          .catch(e => {
+            if(e.response.data.code == 'AuthorizationRequired') {
+              this.$router.push('/');
+            } else {
+              this.error500 = true;
+            }
+          });
       },
       updateUserInfo() {
-        fetch('/api/user/info/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            name: this.name,
-            surname: this.surname,
-            email: this.email,
-            job: this.job,
-            address: this.address,
-            privateAccount: document.getElementById("privateAccount").checked
-          })
-        }).then(async response => {
-          let r = await response.json();
-
-          if(response.status != 200) {
-            throw new Error(r);
-          }
-
-          return r;
+        axios.post('/api/user/info/update', {
+          name: this.name,
+          surname: this.surname,
+          email: this.email,
+          job: this.job,
+          address: this.address,
+          privateAccount: document.getElementById("privateAccount").checked          
         }).then(response => {
           this.updatePasswordSuccess = this.updatePasswordFailure = '';
           this.updateInfoSuccess = true;
         }).catch(e => {
-          if(e.message == 'AuthorizationRequired') {
+          if(e.response.data.code == 'AuthorizationRequired') {
             this.$router.push('/');
           } else {
             this.error500 = true;
@@ -158,37 +139,23 @@
         });
       },
       updateUserPassword() {
-        fetch('/api/user/password/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            oldPassword: this.oldPassword,
-            newPassword: this.newPassword,
-            newPasswordCheck: this.newPasswordCheck
-          })
-        }).then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-          }).then(response => {
-            this.updateInfoSuccess = this.updatePasswordFailure = '';
-            this.updatePasswordSuccess = true;
-          }).catch(e => {
-            this.updateInfoSuccess = this.updatePasswordSuccess = '';
-            if(e.message == 'EmptyFields' || e.message == 'DifferentPasswords' || e.message == 'WeakPassword' || e.message == 'WrongCredentials') {
-              this.updatePasswordFailure = e.message;
-            } else if(e.message == 'AuthorizationRequired') {
-              this.$router.push('/');
-            } else {
-              this.error500 = true;
-            }
-          });
+        axios.post('/api/user/password/update', {
+          oldPassword: this.oldPassword,
+          newPassword: this.newPassword,
+          newPasswordCheck: this.newPasswordCheck
+        }).then(response => {
+          this.updateInfoSuccess = this.updatePasswordFailure = '';
+          this.updatePasswordSuccess = true;
+        }).catch(e => {
+          this.updateInfoSuccess = this.updatePasswordSuccess = '';
+          if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'DifferentPasswords' || e.response.data.code == 'WeakPassword' || e.response.data.code == 'WrongCredentials') {
+            this.updatePasswordFailure = e.response.data.code;
+          } else if(e.response.data.code == 'AuthorizationRequired') {
+            this.$router.push('/');
+          } else {
+            this.error500 = true;
+          }
+        });
       }
     }
   };

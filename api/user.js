@@ -1,4 +1,6 @@
 const express = require('express');
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
 const db = require('../db/db');
 const auth = require('../middleware/auth');
 const router = express.Router();
@@ -60,7 +62,7 @@ router.get('/info/:username', auth.optional, (req, res, next) => {
  * - AuthorizationRequired
  * On success update the user's informations
  */
-router.post('/info/update', auth.required, (req, res, next) => {
+router.post('/info/update', csrfProtection, auth.required, (req, res, next) => {
   const { name, surname, email, job, address, privateAccount } = req.body;
 
   db.updateUserInfo({username: req.user.username, name, surname, email, job, address, privateAccount}).then(() => {
@@ -82,7 +84,7 @@ router.post('/info/update', auth.required, (req, res, next) => {
  * - WrongCredentials
  * On success update the user's password
  */
-router.post('/password/update', auth.required, (req, res, next) => {
+router.post('/password/update', csrfProtection, auth.required, (req, res, next) => {
   const { oldPassword, newPassword, newPasswordCheck } = req.body;
 
   if(!oldPassword || !newPassword || !newPasswordCheck) {
@@ -159,7 +161,7 @@ router.post('/login', auth.optional, (req, res, next) => {
  * - AuthorizationRequired
  * On success remove the authentication cookie
  */
-router.post('/delete', auth.required, (req, res, next) => {
+router.post('/delete', csrfProtection, auth.required, (req, res, next) => {
   db.deleteUser({username: req.user.username}).then(() => {
     res.clearCookie('au');
     res.send({code: 'Success'});

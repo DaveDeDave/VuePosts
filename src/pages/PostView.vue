@@ -44,6 +44,7 @@
   import NavigationButtons from './components/NavigationButtons.vue';
   import NotFound from './NotFound.vue';
   import Error500 from './Error500.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -85,24 +86,20 @@
     methods: {
       async getPost() {
         let success = false;
-        await fetch(`/api/post/get?id=${this.id}`).then(async response => {
-            let r = await response.json();
 
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-          }).then(response => {
-            this.author = response.author;
-            this.title = response.title;
-            this.content = response.content;
-            this.nComments = response.nComments;
-            this.owner = response.owner;
-            this.totalPages = Math.ceil(response.nComments / this.resultPerPage);
+        await axios.get(`/api/post/get?id=${this.id}`)
+          .then(response => {
+            this.author = response.data.author;
+            this.title = response.data.title;
+            this.content = response.data.content;
+            this.nComments = response.data.nComments;
+            this.owner = response.data.owner;
+            this.totalPages = Math.ceil(response.data.nComments / this.resultPerPage);
             success = true;
-          }).catch(e => {
-            if(e.message == 'NotFound') {
+          })
+          .catch(e => {
+            console.log(e);
+            if(e.response.data.code == 'NotFound') {
               this.error404 = true;
             } else {
               this.error500 = true;
@@ -112,47 +109,24 @@
           return success;
       },
       async getAllComments() {
-        fetch(`/api/comment/getAll?postID=${this.id}&page=${this.currentPage}&nResults=${this.resultPerPage}`)
-          .then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-          }).then(response => {
-            this.comments = response.comments;
+        axios.get(`/api/comment/getAll?postID=${this.id}&page=${this.currentPage}&nResults=${this.resultPerPage}`)
+          .then(response => {
+            this.comments = response.data.comments;
             this.lastPageComment = this.comments.length == 1 && this.currentPage != 1;
-          }).catch(e => {
-            this.error500 = true;
-          });
+          })
+          .catch(e => this.error500 = true);
       },
       createComment() {
-        fetch(`/api/comment/new`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            postID: this.id,
-            comment: this.comment
-          })
-        }).then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-          }).then(response => {
-            this.$router.go(0);
-          }).catch(e => {
-            if(e.message == 'AuthorizationRequired') {
+        axios.post('/api/comment/new', {
+          postID: this.id,
+          comment: this.comment
+        })
+          .then(response => this.$router.go(0))
+          .catch(e => {
+            if(e.response.data.code == 'AuthorizationRequired') {
               this.$router.push('/');
-            } else if(e.message == 'EmptyFields' || e.message == 'NotFound') {
-              this.commentFailure = e.message;
+            } else if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'NotFound') {
+              this.commentFailure = e.response.data.code;
             } else {
               this.error500 = true;
             }

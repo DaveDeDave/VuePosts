@@ -15,6 +15,10 @@ const error_404 = [
 ];
 
 module.exports = (err, req, res, next) => {
+  if(err.name == 'ForbiddenError') {
+    err.name = 'AuthorizationRequired';
+  }
+
   if(error_400.includes(err.name)) {
     res.status(400).send({code: err.name});
   } else if(error_403.includes(err.name)) {

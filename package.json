@@ -19,6 +19,7 @@
     "@tiptap/vue-3": "^2.0.0-beta.75",
     "argon2": "^0.28.2",
     "cookie-parser": "^1.4.5",
+    "csurf": "^1.11.0",
     "dompurify": "^2.3.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^2.4.0",
     "@vitejs/plugin-vue": "^1.9.3",
+    "axios": "^0.24.0",
     "concurrently": "^6.3.0",
     "sass": "^1.43.3",
     "vite": "^2.6.4"

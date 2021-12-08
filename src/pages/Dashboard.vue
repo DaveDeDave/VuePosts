@@ -111,6 +111,7 @@
 
 <script>
   import Error500 from './Error500.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -164,49 +165,31 @@
     },
     methods: {
       async getUserInfo() {
-        fetch('/api/user/info').then(async response => {
-          let r = await response.json();
-
-          if(response.status != 200) {
-            throw new Error(r.code);
-          }
-              
-          return r;
-        }).then(response => {
-          this.username = response.username;
-          this.name = response.name;
-          this.surname = response.surname;
-          this.email = response.email;
-          this.job = response.job;
-          this.address = response.address;
-          this.registrationDate = response.registrationDate;
-          this.yearsSinceRegistration = this.getYears(response.registrationDate);
-          this.numberOfPosts = response.nPosts;
-          this.numberOfComments = response.nComments;
-        }).catch(e => {
-          if(e.message == 'AuthorizationRequired') {
-            this.$router.push('/');
-          } else {
-            this.error500 = true;
-          }
-        });
+        axios.get('/api/user/info')
+          .then(response => {
+            this.username = response.data.username;
+            this.name = response.data.name;
+            this.surname = response.data.surname;
+            this.email = response.data.email;
+            this.job = response.data.job;
+            this.address = response.data.address;
+            this.registrationDate = response.data.registrationDate;
+            this.yearsSinceRegistration = this.getYears(response.data.registrationDate);
+            this.numberOfPosts = response.data.nPosts;
+            this.numberOfComments = response.data.nComments;
+          })
+          .catch(e => {
+            if(e.response.data.code == 'AuthorizationRequired') {
+              this.$router.push('/');
+            } else {
+              this.error500 = true;
+            }
+          });
       },
       deleteAccount() {
-        fetch('/api/user/delete', {
-          method: 'POST'
-        }).then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-        }).then(response => {
-          this.$router.push('/');
-        }).catch(e => {
-          this.errorDelete = true;
-        });
+        axios.post('/api/user/delete')
+          .then(response => this.$router.push('/'))
+          .catch(e => this.errorDelete = true);
       },
       getYears(registrationDate) {
         let registrationYear = new Date(registrationDate).getFullYear();

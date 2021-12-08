@@ -26,6 +26,7 @@
   import NavigationButtons from './components/NavigationButtons.vue';
   import NotFound from './NotFound.vue';
   import Error500 from './Error500.vue';
+  import axios from 'axios';
   
   export default {
     components: {
@@ -57,36 +58,20 @@
     },
     methods: {
       async getNumberOfPosts() {
-        await fetch(`/api/post/getNumber?search=${this.search}`).then(async response => {
-          let r = await response.json();
-
-          if(response.status != 200) {
-            throw new Error(r.code);
-          }
-
-          return r;
-        }).then(response => {
-          this.totalPages = Math.ceil(response.nPosts / this.resultPerPage);
-        }).catch(e => {
-          this.error500 = true;
-        });
+        // await
+        axios.get(`/api/post/getNumber?search=${this.search}`)
+          .then(response => {
+            this.totalPages = Math.ceil(response.data.nPosts / this.resultPerPage);
+          })
+          .catch(e => this.error500 = true);
       },
       async getAllPosts() {
-        fetch(`/api/post/getAll?search=${this.search}&page=${this.currentPage}&nResults=${this.resultPerPage}`)
-          .then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-
-            return r;
-          }).then(response => {
-            this.posts = response.posts;
+        axios.get(`/api/post/getAll?search=${this.search}&page=${this.currentPage}&nResults=${this.resultPerPage}`)
+          .then(response => {
+            this.posts = response.data.posts;
             this.lastPagePost = this.posts.length == 1 && this.currentPage != 1;
-          }).catch(e => {
-            this.error500 = true;
-          });
+          })
+          .catch(e => this.error500 = true);
       },
       getData() {
         if(this.currentPage <= 0) {

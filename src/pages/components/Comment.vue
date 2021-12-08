@@ -48,6 +48,7 @@
 
 <script>
   import Editor from './TipTap/Editor.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -76,22 +77,8 @@
     },
     methods: {
       deleteComment() {
-        fetch('/api/comment/delete', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            id: this.id
-          })
-        }).then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-            
-            return r;
+        axios.post('/api/comment/delete', {
+          id: this.id
         }).then(response => {
           if(this.lastPageComment) {
             this.deleteModal.hide();
@@ -101,8 +88,8 @@
             this.$router.go(0);
           }
         }).catch(e => {
-          if(e.message == 'NotFound' || e.message == 'AuthorizationRequired') {
-            this.errorDelete = e.message;
+          if(e.response.data.code == 'NotFound' || e.response.data.code == 'AuthorizationRequired') {
+            this.errorDelete = e.response.data.code;
           } else {
             this.errorDelete = 'UnknownError';
           }

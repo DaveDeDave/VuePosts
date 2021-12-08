@@ -1,5 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
 const db = require('./db/db');
 const auth = require('./middleware/auth');
 const errorHandler = require('./middleware/errorHandler');
@@ -22,8 +24,13 @@ app.use('/api/post', post);
 app.use('/api/comment', comment);
 app.use(errorHandler);
 
+// CSRF TOKEN
+app.get('/api/xsrf-token', csrfProtection, auth.optional, (req, res) => {
+  res.send({'xsrf-token': req.csrfToken()});
+});
+
 // DEFAULT RESPONSE FOR INVALID URL
-app.all('*', auth.optional, (req, res, next) => {
+app.all('*', auth.optional, (req, res) => {
   res.sendFile(path.resolve('./dist/index.html'));
 });
 

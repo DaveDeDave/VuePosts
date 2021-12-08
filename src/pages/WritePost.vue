@@ -25,6 +25,7 @@
 <script>
   import Editor from './components/TipTap/Editor.vue';
   import Error500 from './Error500.vue';
+  import axios from 'axios';
 
   export default {
     components: {
@@ -41,34 +42,19 @@
     },
     methods: {
       createPost() {
-        fetch('/api/post/new', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            title: this.title,
-            content: this.content
-          })
-        }).then(async response => {
-          let r = await response.json();
-
-          if(response.status != 200) {
-            throw new Error(r.code);
-          }
-
-          return r;
-        }).then(response => {
-            this.$router.push('/dashboard');
-        }).catch(e => {
-          if(e.message == 'EmptyFields') {
-            this.errorPost = true;
-          } else if(e.message == 'AuthorizationRequired') {
-            this.$router.push('/');
-          } else {
-            this.error500 = true;
-          }
-        });
+        axios.post('/api/post/new', {
+          title: this.title,
+          content: this.content
+        }).then(response => this.$router.push('/dashboard'))
+          .catch(e => {
+            if(e.response.data.code == 'EmptyFields') {
+              this.errorPost = true;
+            } else if(e.response.data.code == 'AuthorizationRequired') {
+              this.$router.push('/');
+            } else {
+              this.error500 = true;
+            }
+          });
       }
     }
   };
