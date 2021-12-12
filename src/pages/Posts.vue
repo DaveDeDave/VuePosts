@@ -58,8 +58,7 @@
     },
     methods: {
       async getNumberOfPosts() {
-        // await
-        axios.get(`/api/post/getNumber?search=${this.search}`)
+        await axios.get(`/api/post/getNumber?search=${this.search}`)
           .then(response => {
             this.totalPages = Math.ceil(response.data.nPosts / this.resultPerPage);
           })
