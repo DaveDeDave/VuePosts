@@ -8,8 +8,9 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "vite",
     "dev:server": "node -r dotenv/config app.js",
-    "build": "vite build",
-    "serve": "vite preview"
+    "build": "vite build && npm run purgecss",
+    "serve": "vite preview",
+    "purgecss": "purgecss --config ./purgecss.config.js"
   },
   "author": "DaveDeDave",
   "license": "MIT",
@@ -37,6 +38,7 @@
     "axios": "^0.24.0",
     "concurrently": "^6.3.0",
     "sass": "^1.43.3",
-    "vite": "^2.6.4"
+    "vite": "^2.6.4",
+    "purgecss": "^4.0.3"
   }
 }
