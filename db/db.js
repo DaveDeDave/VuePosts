@@ -22,7 +22,7 @@ class DB {
 
     fs.access(dbName, async (err) => {
       if(err) {
-        const db = new Database(this.dbName);
+        const db = new Database(dbName);
         db.pragma('foreign_keys = ON');
         
         try {
