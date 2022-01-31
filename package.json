@@ -16,29 +16,29 @@
   "license": "MIT",
   "dependencies": {
     "argon2": "^0.28.2",
+    "better-sqlite3": "^7.5.0",
     "cookie-parser": "^1.4.5",
     "csurf": "^1.11.0",
     "dompurify": "^2.3.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsdom": "^18.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "sqlite3": "^4.2.0"
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "vue": "^3.2.16",
-    "vue-i18n": "^9.1.7",
-    "vue-router": "^4.0.11",
-    "vite": "^2.6.4",
     "@intlify/vite-plugin-vue-i18n": "^2.4.0",
-    "@vitejs/plugin-vue": "^1.9.3",
-    "purgecss": "^4.0.3",
-    "axios": "^0.24.0",
-    "concurrently": "^6.3.0",
-    "sass": "^1.43.3",
     "@tiptap/extension-highlight": "^2.0.0-beta.26",
     "@tiptap/starter-kit": "^2.0.0-beta.133",
     "@tiptap/vue-3": "^2.0.0-beta.75",
-    "swiper": "^7.0.0"
+    "@vitejs/plugin-vue": "^1.9.3",
+    "axios": "^0.24.0",
+    "concurrently": "^6.3.0",
+    "purgecss": "^4.0.3",
+    "sass": "^1.43.3",
+    "swiper": "^7.0.0",
+    "vite": "^2.6.4",
+    "vue": "^3.2.16",
+    "vue-i18n": "^9.1.7",
+    "vue-router": "^4.0.11"
   }
 }

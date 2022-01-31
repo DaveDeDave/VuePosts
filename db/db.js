@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3');
+const Database = require('better-sqlite3');
 const argon2 = require('argon2');
 const authController = require('../controllers/authController');
 const fs = require('fs');
@@ -8,8 +8,8 @@ const fs = require('fs');
  * @returns {sqlite3.Database} sqlite3 db instance
  */
 const getDBInstance = () => {
-  const db = new sqlite3.Database('./db/db.sqlite');
-  db.run('PRAGMA foreign_keys = ON');
+  const db = new Database('./db/db.sqlite');
+  db.pragma('foreign_keys = ON');
   
   return db;
 }
@@ -19,20 +19,18 @@ module.exports = {
    * Initializes the database if it doesn't exist
    */
   async init() {
-    fs.access('./db/db.sqlite', (err) => {
+    fs.access('./db/db.sqlite', async (err) => {
       if(err) {
         const db = getDBInstance();
-        const schema = fs.readFileSync('./db/schema.sql', 'utf8');
-        db.exec(schema, (err) => {
-          if(err)
-            console.log(err)
-          const inputs = fs.readFileSync('./db/inputs.sql', 'utf8');
-          db.exec(inputs, (err) => {
-            if(err)
-              console.log(err);
-            db.close();
-          });
-        });
+
+        try {
+          await db.exec(fs.readFileSync('./db/schema.sql', 'utf8'));
+          await db.exec(fs.readFileSync('./db/inputs.sql', 'utf8'));
+        } catch(e) {
+          throw e;
+        } finally {
+          db.close();
+        }
       }
     });
   },
@@ -45,34 +43,25 @@ module.exports = {
    */
   async createUser(user) {
     const db = getDBInstance();
+
     try {
       const hash = await argon2.hash(user.password);
 
       const date = new Date();
       const registrationDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
-      return new Promise((resolve, reject) => {
-        db.run("INSERT INTO user VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", user.username, hash, '', '', '', registrationDate, '', '', false, (err) => {
-          db.close();
-          if(err) {
-            if(err.message == 'SQLITE_CONSTRAINT: UNIQUE constraint failed: user.username') {
-              reject({name: 'UserAlreadyExists'});
-            } else {
-              reject(err);
-            }
-          } else {
-            authController.generateJWT({username: user.username}).then(token => {
-              resolve(token)
-            }).catch(e => {
-              reject(e);
-            });
-          }
-        });
-      });
-
+      await db.prepare("INSERT INTO user VALUES (?, ?, '', '', '', ?, '', '', false)").run(user.username, hash, registrationDate);
     } catch(e) {
-      throw new Error(e);
+      if(e.message == 'UNIQUE constraint failed: user.username') {
+        throw {name: 'UserAlreadyExists'};
+      } else {
+        throw e;
+      }
+    } finally {
+      db.close();
     }
+
+    return await authController.generateJWT({username: user.username});
   },
   /**
    * Tries to authenticate the user
@@ -84,49 +73,36 @@ module.exports = {
   async authenticateUser(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT password FROM user WHERE username = ?", user.username, async (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          reject({name: 'WrongCredentials'});
-        } else {
-          try {
-            if(await argon2.verify(row.password, user.password)) {
-              authController.generateJWT({username: user.username}).then(token => {
-                resolve(token)
-              }).catch(e => {
-                reject(e);
-              });
-            } else {
-              reject({name: 'WrongCredentials'});
-            }
-          } catch(err) {
-            reject(err);
-          }
-        }
-      });
-    });
+    try {
+      let row = await db.prepare("SELECT password FROM user WHERE username = ?").get(user.username);
+      if(!row) {
+        throw {name: 'WrongCredentials'};
+      } else if(await argon2.verify(row.password, user.password)) {
+        return await authController.generateJWT({username: user.username});
+      } else {
+        throw {name: 'WrongCredentials'};
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Deletes a user
    * @param {Object} user
    * @property {String} username - The user's username
    */
-  deleteUser(user) {
+  async deleteUser(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.run("DELETE FROM user WHERE username = ?", user.username, (err) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      })
-    });
+    try {
+      await db.prepare("DELETE FROM user WHERE username = ?").run(user.username);
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets user's personal informations
@@ -135,34 +111,34 @@ module.exports = {
    * @property {Boolean} owner - Check if the user who require the informarions is the owner of the account 
    * @returns {Promise<Object>} User's informations
    */
-  getUserInfo(user) {
+  async getUserInfo(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM user WHERE username = ?", user.username, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          reject({name: 'NotFound'});
-        } else if(!row.privateAccount || user.owner) {
-          resolve({
-            username: row.username,
-            name: row.name,
-            surname: row.surname,
-            email: row.email,
-            registrationDate: row.registrationDate,
-            job: row.job,
-            address: row.address,
-            privateAccount: row.privateAccount
-          });
-        } else {
-          resolve({
-            privateAccount: row.privateAccount
-          })
-        }
-      });
-    });
+    try {
+      let row = await db.prepare("SELECT * FROM user WHERE username = ?").get(user.username);
+      if(!row) {
+        throw {name: 'NotFound'};
+      } else if(!row.privateAccount || user.owner) {
+        return {
+          username: row.username,
+          name: row.name,
+          surname: row.surname,
+          email: row.email,
+          registrationDate: row.registrationDate,
+          job: row.job,
+          address: row.address,
+          privateAccount: row.privateAccount
+        };
+      } else {
+        return {
+          privateAccount: row.privateAccount
+        };
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Updates user's personal informations
@@ -175,19 +151,16 @@ module.exports = {
    * @property {String} address - The user's address
    * @property {Boolean} privateAccount - If the account is private or not
    */
-  updateUserInfo(user) {
+  async updateUserInfo(user) {
     const db = getDBInstance();
-    
-    return new Promise((resolve, reject) => {
-      db.run("UPDATE user SET name = ?, surname = ?, email = ?, job = ?, address = ?, privateAccount = ? WHERE username = ?", user.name, user.surname, user.email, user.job, user.address, user.privateAccount, user.username, (err) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+
+    try {
+      await db.prepare("UPDATE user SET name = ?, surname = ?, email = ?, job = ?, address = ?, privateAccount = ? WHERE username = ?").run(user.name, user.surname, user.email, user.job, user.address, user.privateAccount, user.username);
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Updates user's password
@@ -196,40 +169,24 @@ module.exports = {
    * @property {String} oldPassword - The user's old password
    * @property {String} newPassword - The user's new password
    */
-  updateUserPassword(user) {
+  async updateUserPassword(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT password FROM user WHERE username = ?", user.username, async (err, row) => {
-        if(err) {
-          db.close();
-          reject(err);
-        } else if(!row) {
-          db.close();
-          reject({name: 'WrongCredentials'});
-        } else {
-          try {
-            if(await argon2.verify(row.password, user.oldPassword)) {
-              const hash = await argon2.hash(user.newPassword);
-              db.run("UPDATE user SET password = ? WHERE username = ?", hash, user.username, (err) => {
-                db.close();
-                if(err) {
-                  reject(err);
-                } else {
-                  resolve();
-                }
-              })
-            } else {
-              db.close();
-              reject({name: 'WrongCredentials'});
-            }
-          } catch(err) {
-            db.close();
-            reject(err);
-          }
-        }
-      });
-    });
+    try {
+      const row = await db.prepare("SELECT password FROM user WHERE username = ?").get(user.username);
+      if(!row) {
+        throw {name: 'WrongCredentials'};
+      } else if(await argon2.verify(row.password, user.oldPassword)) {
+        const hash = await argon2.hash(user.newPassword);
+        await db.prepare("UPDATE user SET password = ? WHERE username = ?").run(hash, user.username);
+      } else {
+        throw {name: 'WrongCredentials'};
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Creates a new post
@@ -238,19 +195,16 @@ module.exports = {
    * @property {String} content - The post's content
    * @property {String} author - The author's username
    */
-  createPost(post) {
+  async createPost(post) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.run("INSERT INTO post (title, content, author) VALUES (?, ?, ?)", post.title, post.content, post.author, (err) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+    try {
+      await db.prepare("INSERT INTO post (title, content, author) VALUES (?, ?, ?)").run(post.title, post.content, post.author);
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Deletes a post by id
@@ -258,31 +212,23 @@ module.exports = {
    * @property {Number} id - The post's id
    * @property {String} username - The user who requested to delete the post
    */
-  deletePost(post) {
+  async deletePost(post) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM post WHERE id = ?", post.id, (err, row) => {
-        if(err) {
-          db.close();
-          reject(err);
-        } else if(!row) {
-          db.close();
-          reject({name: 'NotFound'});
-        } else if(row.author != post.username) {
-          reject({name: 'AuthorizationRequired'});
-        } else {
-          db.run("DELETE FROM post WHERE id = ?", post.id, (err) => {
-            db.close();
-            if(err) {
-              reject(err);
-            } else {
-              resolve();
-            }
-          });
-        }
-      });
-    });
+    try {
+      const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(post.id);
+      if(!row) {
+        throw {name: 'NotFound'};
+      } else if(row.author != post.username) {
+        throw {name: 'AuthorizationRequired'};
+      } else {
+        await db.prepare("DELETE FROM post WHERE id = ?").run(post.id);
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets all posts of a page
@@ -292,19 +238,16 @@ module.exports = {
    * @property {Number} nResults - The number of posts that will be returned for that page
    * @returns {Promise<Object[]>} List of posts
    */
-  getAllPosts(page) {
+  async getAllPosts(page) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.all("SELECT * FROM post WHERE title LIKE ? LIMIT ? OFFSET ?", page.search, page.nResults, (page.number-1)*page.nResults, (err, rows) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+    try {
+      return await db.prepare("SELECT * FROM post WHERE title LIKE ? LIMIT ? OFFSET ?").all(page.search, page.nResults, (page.number-1)*page.nResults);
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets a post by id
@@ -312,42 +255,38 @@ module.exports = {
    * @property {Number} id - The post's id
    * @returns {Promise<Object>} The post
    */
-  getPost(post) {
+  async getPost(post) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM post WHERE id = ?", post.id, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          reject({name: 'NotFound'});
-        } else {
-          resolve(row);
-        }
-      });
-    });
+    try {
+      const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(post.id);
+      if(!row) {
+        throw {name: 'NotFound'};
+      } else {
+        return row;
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets the total number of posts
    * @param {String} search - The search filter by title
    * @returns {Promise<Number>} The number of posts
    */
-  getNumberOfPosts(search) {
+  async getNumberOfPosts(search) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT COUNT(*) AS nPosts FROM post WHERE title LIKE ?", search, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          resolve(0);
-        } else {
-          resolve(row.nPosts);
-        }
-      })
-    });
+    try {
+      const row = await db.prepare("SELECT COUNT(*) AS nPosts FROM post WHERE title LIKE ?").get(search);
+      return row ? row.nPosts : 0;
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets the number of posts of a user
@@ -355,21 +294,17 @@ module.exports = {
    * @property {String} username
    * @returns {Promise<Number>} The number of posts of the user
    */
-  getNumberOfPostsByUser(user) {
+  async getNumberOfPostsByUser(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT COUNT(*) AS nPosts FROM post WHERE author = ?", user.username, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          resolve(0);
-        } else {
-          resolve(row.nPosts);
-        }
-      })
-    });
+    try {
+      const row = await db.prepare("SELECT COUNT(*) AS nPosts FROM post WHERE author = ?").get(user.username);
+      return row ? row.nPosts : 0;
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Comments a post
@@ -378,29 +313,21 @@ module.exports = {
    * @property {String} text - The comment
    * @property {String} author - The comment's author
    */
-  createComment(comment) {
+  async createComment(comment) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM post WHERE id = ?", comment.postID, (err, row) => {
-        if(err) {
-          db.close();
-          reject(err);
-        } else if(!row) {
-          db.close();
-          reject({name: 'NotFound'});
-        } else {
-          db.run("INSERT INTO comment (content, post, author) VALUES (?, ?, ?)", comment.text, comment.postID, comment.author, (err) => {
-            db.close();
-            if(err) {
-              reject(err)
-            } else {
-              resolve();
-            }
-          });
-        }
-      })
-    });
+    try {
+      const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(comment.postID);
+      if(!row) {
+        throw {name: 'NotFound'};
+      } else {
+        await db.prepare("INSERT INTO comment (content, post, author) VALUES (?, ?, ?)").run(comment.text, comment.postID, comment.author);
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Deletes a comment by id
@@ -408,32 +335,23 @@ module.exports = {
    * @property {Number} id - The comment's id
    * @property {String} username - The user who requested to delete the comment
    */
-  deleteComment(comment) {
+  async deleteComment(comment) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM comment WHERE id = ?", comment.id, (err, row) => {
-        if(err) {
-          db.close();
-          reject(err);
-        } else if(!row) {
-          db.close();
-          reject({name: 'NotFound'});
-        } else if(row.author != comment.username) {
-          db.close();
-          reject({name: 'AuthorizationRequired'});
-        } else {
-          db.run("DELETE FROM comment WHERE id = ?", row.id, (err) => {
-            db.close();
-            if(err) {
-              reject(err);
-            } else {
-              resolve();
-            }
-          })
-        }
-      })
-    });
+    try {
+      const row = await db.prepare("SELECT * FROM comment WHERE id = ?").get(comment.id);
+      if(!row) {
+        throw {name: 'NotFound'};
+      } else if(row.author != comment.username) {
+        throw {name: 'AuthorizationRequired'};
+      } else {
+        await db.prepare("DELETE FROM comment WHERE id = ?").run(row.id);
+      }
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Get all comments of a post
@@ -443,19 +361,16 @@ module.exports = {
    * @property {Number} nResults - The number of comments that will be returned for that page
    * @returns {Promise<Object[]>} List of comments
    */
-  getAllComments(post) {
+  async getAllComments(post) {
     const db = getDBInstance();
-    
-    return new Promise((resolve, reject) => {
-      db.all("SELECT * FROM comment WHERE post = ? LIMIT ? OFFSET ?", post.id, post.nResults, (post.commentPage-1)*post.nResults, (err, rows) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+
+    try {
+      return await db.prepare("SELECT * FROM comment WHERE post = ? LIMIT ? OFFSET ?").all(post.id, post.nResults, (post.commentPage-1)*post.nResults);
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets the number of comments of a post
@@ -463,22 +378,17 @@ module.exports = {
    * @property {Number} id - The post's id
    * @returns {Promise<Number>} The number of comments of the post
    */
-  getNumberOfCommentsByPost(post) {
-    
+  async getNumberOfCommentsByPost(post) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT COUNT(*) AS nComments FROM comment WHERE post = ?", post.id, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          resolve(0);
-        } else {
-          resolve(row.nComments);
-        }
-      });
-    });
+    try {
+      const row = await db.prepare("SELECT COUNT(*) AS nComments FROM comment WHERE post = ?").get(post.id);
+      return row ? row.nComments : 0;
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   },
   /**
    * Gets the number of comments of a user
@@ -486,20 +396,16 @@ module.exports = {
    * @property {String} username - The user's userrname
    * @returns {Promise<Number>} The number of comments of the user
    */
-  getNumberOfCommentsByUser(user) {
+  async getNumberOfCommentsByUser(user) {
     const db = getDBInstance();
 
-    return new Promise((resolve, reject) => {
-      db.get("SELECT COUNT(*) AS nComments FROM comment WHERE author = ?", user.username, (err, row) => {
-        db.close();
-        if(err) {
-          reject(err);
-        } else if(!row) {
-          resolve(0);
-        } else {
-          resolve(row.nComments);
-        }
-      });
-    });
+    try {
+      const row = await db.prepare("SELECT COUNT(*) AS nComments FROM comment WHERE author = ?").get(user.username);
+      return row ? row.nComments : 0;
+    } catch(e) {
+      throw e;
+    } finally {
+      db.close();
+    }
   }
 };
