@@ -1,7 +1,8 @@
 const express = require('express');
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
-const db = require('../db/db');
+const Database = require('../db/db');
+const db = new Database();
 const auth = require('../middleware/auth');
 const router = express.Router();
 

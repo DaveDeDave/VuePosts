@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
-const db = require('./db/db');
+const Database = require('./db/db');
 const auth = require('./middleware/auth');
 const errorHandler = require('./middleware/errorHandler');
 const user = require('./api/user');
@@ -35,7 +35,7 @@ app.all('*', auth.optional, (req, res) => {
 });
 
 // SQLITE
-db.init().catch((e) => {
+Database.init().catch((e) => {
   console.log(e);
   process.exit(0);
 });

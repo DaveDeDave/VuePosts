@@ -3,25 +3,26 @@ const argon2 = require('argon2');
 const authController = require('../controllers/authController');
 const fs = require('fs');
 
-/**
- * Gets a sqlite3 db instance with integrity constraints
- * @returns {sqlite3.Database} sqlite3 db instance
- */
-const getDBInstance = () => {
-  const db = new Database('./db/db.sqlite');
-  db.pragma('foreign_keys = ON');
+class DB {
   
-  return db;
-}
+  /**
+   * Create a database instance
+   * @param {Boolean} test - database for testing if it is true, database for production if it is false
+   */
+  constructor(test=false) {
+    this.dbName = !test ? './db/db.sqlite' : './db/test/db.sqlite';
+  }
 
-module.exports = {
   /**
    * Initializes the database if it doesn't exist
+   * @param {Boolean} test - database for testing if it is true, database for production if it is false
    */
-  async init() {
-    fs.access('./db/db.sqlite', async (err) => {
+  static async init(test=false) {
+    const dbName = !test ? './db/db.sqlite' : './db/test/db.sqlite';
+
+    fs.access(dbName, async (err) => {
       if(err) {
-        const db = getDBInstance();
+        const db = this.#getDBInstance();
 
         try {
           await db.exec(fs.readFileSync('./db/schema.sql', 'utf8'));
@@ -33,7 +34,18 @@ module.exports = {
         }
       }
     });
-  },
+  }
+
+  /**
+   * Gets a sqlite3 db instance with integrity constraints
+   * @returns {sqlite3.Database} sqlite3 db instance
+   */
+  #getDBInstance() {
+    const db = new Database(this.dbName);
+    db.pragma('foreign_keys = ON');
+    return db;
+  }
+
   /**
    * Registers a new user
    * @param {Object} user
@@ -42,7 +54,7 @@ module.exports = {
    * @returns {Promise<String>} JWT token
    */
   async createUser(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const hash = await argon2.hash(user.password);
@@ -62,7 +74,8 @@ module.exports = {
     }
 
     return await authController.generateJWT({username: user.username});
-  },
+  }
+
   /**
    * Tries to authenticate the user
    * @param {Object} user
@@ -71,7 +84,7 @@ module.exports = {
    * @returns {Promise<String>} JWT token
    */
   async authenticateUser(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       let row = await db.prepare("SELECT password FROM user WHERE username = ?").get(user.username);
@@ -87,14 +100,15 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Deletes a user
    * @param {Object} user
    * @property {String} username - The user's username
    */
   async deleteUser(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       await db.prepare("DELETE FROM user WHERE username = ?").run(user.username);
@@ -103,7 +117,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets user's personal informations
    * @param {Object} user
@@ -112,7 +127,7 @@ module.exports = {
    * @returns {Promise<Object>} User's informations
    */
   async getUserInfo(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       let row = await db.prepare("SELECT * FROM user WHERE username = ?").get(user.username);
@@ -139,7 +154,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Updates user's personal informations
    * @param {Object} user
@@ -152,7 +168,7 @@ module.exports = {
    * @property {Boolean} privateAccount - If the account is private or not
    */
   async updateUserInfo(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       await db.prepare("UPDATE user SET name = ?, surname = ?, email = ?, job = ?, address = ?, privateAccount = ? WHERE username = ?").run(user.name, user.surname, user.email, user.job, user.address, user.privateAccount, user.username);
@@ -161,7 +177,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Updates user's password
    * @param {Object} user
@@ -170,7 +187,7 @@ module.exports = {
    * @property {String} newPassword - The user's new password
    */
   async updateUserPassword(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT password FROM user WHERE username = ?").get(user.username);
@@ -187,7 +204,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Creates a new post
    * @param {Object} post
@@ -196,7 +214,7 @@ module.exports = {
    * @property {String} author - The author's username
    */
   async createPost(post) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       await db.prepare("INSERT INTO post (title, content, author) VALUES (?, ?, ?)").run(post.title, post.content, post.author);
@@ -205,7 +223,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Deletes a post by id
    * @param {Object} post
@@ -213,7 +232,7 @@ module.exports = {
    * @property {String} username - The user who requested to delete the post
    */
   async deletePost(post) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(post.id);
@@ -229,7 +248,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets all posts of a page
    * @param {Object} page - The page
@@ -239,7 +259,7 @@ module.exports = {
    * @returns {Promise<Object[]>} List of posts
    */
   async getAllPosts(page) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       return await db.prepare("SELECT * FROM post WHERE title LIKE ? LIMIT ? OFFSET ?").all(page.search, page.nResults, (page.number-1)*page.nResults);
@@ -248,7 +268,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets a post by id
    * @param {Object} post
@@ -256,7 +277,7 @@ module.exports = {
    * @returns {Promise<Object>} The post
    */
   async getPost(post) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(post.id);
@@ -270,14 +291,15 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets the total number of posts
    * @param {String} search - The search filter by title
    * @returns {Promise<Number>} The number of posts
    */
   async getNumberOfPosts(search) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT COUNT(*) AS nPosts FROM post WHERE title LIKE ?").get(search);
@@ -287,7 +309,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets the number of posts of a user
    * @param {Object} user
@@ -295,7 +318,7 @@ module.exports = {
    * @returns {Promise<Number>} The number of posts of the user
    */
   async getNumberOfPostsByUser(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT COUNT(*) AS nPosts FROM post WHERE author = ?").get(user.username);
@@ -305,7 +328,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Comments a post
    * @param {Object} comment
@@ -314,7 +338,7 @@ module.exports = {
    * @property {String} author - The comment's author
    */
   async createComment(comment) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT * FROM post WHERE id = ?").get(comment.postID);
@@ -328,7 +352,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Deletes a comment by id
    * @param {Object} comment
@@ -336,7 +361,7 @@ module.exports = {
    * @property {String} username - The user who requested to delete the comment
    */
   async deleteComment(comment) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT * FROM comment WHERE id = ?").get(comment.id);
@@ -352,7 +377,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Get all comments of a post
    * @param {Object} post
@@ -362,7 +388,7 @@ module.exports = {
    * @returns {Promise<Object[]>} List of comments
    */
   async getAllComments(post) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       return await db.prepare("SELECT * FROM comment WHERE post = ? LIMIT ? OFFSET ?").all(post.id, post.nResults, (post.commentPage-1)*post.nResults);
@@ -371,7 +397,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets the number of comments of a post
    * @param {Object} post
@@ -379,7 +406,7 @@ module.exports = {
    * @returns {Promise<Number>} The number of comments of the post
    */
   async getNumberOfCommentsByPost(post) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT COUNT(*) AS nComments FROM comment WHERE post = ?").get(post.id);
@@ -389,7 +416,8 @@ module.exports = {
     } finally {
       db.close();
     }
-  },
+  }
+
   /**
    * Gets the number of comments of a user
    * @param {Object} user
@@ -397,7 +425,7 @@ module.exports = {
    * @returns {Promise<Number>} The number of comments of the user
    */
   async getNumberOfCommentsByUser(user) {
-    const db = getDBInstance();
+    const db = this.#getDBInstance();
 
     try {
       const row = await db.prepare("SELECT COUNT(*) AS nComments FROM comment WHERE author = ?").get(user.username);
@@ -408,4 +436,7 @@ module.exports = {
       db.close();
     }
   }
-};
+
+}
+
+module.exports = DB;
