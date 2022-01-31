@@ -22,8 +22,9 @@ class DB {
 
     fs.access(dbName, async (err) => {
       if(err) {
-        const db = this.#getDBInstance();
-
+        const db = new Database(this.dbName);
+        db.pragma('foreign_keys = ON');
+        
         try {
           await db.exec(fs.readFileSync('./db/schema.sql', 'utf8'));
           await db.exec(fs.readFileSync('./db/inputs.sql', 'utf8'));
