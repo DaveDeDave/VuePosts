@@ -84,7 +84,8 @@
 <script>
   import { Swiper, SwiperSlide } from 'swiper/vue';
   import SwiperCore, { EffectFlip } from 'swiper';
-  
+  import axios from 'axios';
+
   import 'swiper/css';
   import 'swiper/css/effect-flip';
 
@@ -120,72 +121,53 @@
     },
     methods: {
       login() {
-        fetch('/api/user/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            username: this.loginUsername,
-            password: this.loginPassword,
-          })
-        }).then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-            
-            return r;
-          })
-          .then(response => {
+        axios.post('/api/user/login', {
+          username: this.loginUsername,
+          password: this.loginPassword 
+        }).then(response => {
+          axios.get('/api/xsrf-token').then(response => {
+            axios.defaults.headers.post['XSRF-TOKEN'] = response.data["xsrf-token"];
+          }).then(r => {
             this.loginResponseError = this.registrationResponseSuccess = this.registrationResponseError = '';
-            this.loginResponseSuccess = response.message;
+            this.loginResponseSuccess = response.data.message;
             this.joinModal.hide();
             this.$router.push('/dashboard');
           }).catch(e => {
-            this.loginResponseSuccess = this.registrationResponseSuccess = this.registrationResponseError = '';
-            if(e.message == 'EmptyFields' || e.message == 'WrongCredentials') {
-              this.loginResponseError = e.message;
-            } else {
-              this.loginResponseError = 'UnknownError';
-            }
+            this.loginResponseError = 'UnknownError';
           });
+        }).catch(e => {
+          this.loginResponseSuccess = this.registrationResponseSuccess = this.registrationResponseError = '';
+          if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'WrongCredentials') {
+            this.loginResponseError = e.response.data.code;
+          } else {
+            this.loginResponseError = 'UnknownError';
+          }
+        });
       },
       register() {
-        fetch('/api/user/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify({
-            username: this.registrationUsername,
-            password: this.registrationPassword,
-            passwordCheck: this.registrationPasswordCheck
-          })
-        })
-          .then(async response => {
-            let r = await response.json();
-
-            if(response.status != 200) {
-              throw new Error(r.code);
-            }
-            
-            return r;
-          })
-          .then(response => {
+        axios.post('/api/user/register', {
+          username: this.registrationUsername,
+          password: this.registrationPassword,
+          passwordCheck: this.registrationPasswordCheck
+        }).then(response => {
+          axios.get('/api/xsrf-token').then(response => {
+            axios.defaults.headers.post['XSRF-TOKEN'] = response.data["xsrf-token"];
+          }).then(r => {
             this.loginResponseSuccess = this.loginResponseError = this.registrationResponseError = '';
-            this.registrationResponseSuccess = response.message;
+            this.registrationResponseSuccess = response.data.message;
             this.joinModal.hide();
             this.$router.push('/dashboard');
           }).catch(e => {
+            this.loginResponseError = 'UnknownError';
+          });
+        }).catch(e => {
             this.loginResponseSuccess = this.loginResponseError = this.registrationResponseSuccess = '';
-            if(e.message == 'EmptyFields' || e.message == 'DifferentPasswords' || e.message == 'WeakPassword' || e.message == 'UserAlreadyExists') {
-              this.registrationResponseError = e.message;
+            if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'DifferentPasswords' || e.response.data.code == 'WeakPassword' || e.response.data.code == 'UserAlreadyExists') {
+              this.registrationResponseError = e.response.data.code;
             } else {
               this.registrationResponseError = 'UnknownError';
             }
-          });
+        });
       },
       resetLoginInputsAndAlerts() {
         this.loginUsername = this.loginPassword = this.loginResponseSuccess = this.loginResponseError = '';

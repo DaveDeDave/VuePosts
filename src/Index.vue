@@ -22,9 +22,6 @@
         let cookies = document.cookie.split('; ');
         let lang = cookies.find(c => c.split('=')[0] == 'lang');
         this.$i18n.locale = lang && ['en', 'it'].indexOf(lang.split('=')[1]) != -1 ? lang.split('=')[1] : 'en';
-        axios.get('/api/xsrf-token').then(response => {
-          axios.defaults.headers.post['XSRF-TOKEN'] = response.data["xsrf-token"];
-        });
       }
     }
   };

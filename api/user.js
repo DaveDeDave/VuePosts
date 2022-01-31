@@ -169,13 +169,4 @@ router.post('/delete', csrfProtection, auth.required, (req, res, next) => {
   }).catch(e => next(e));
 });
 
-/**
- * GET /api/user/logout
- * On success remove the authentication cookie
- */
-router.get('/logout', (req, res, next) => {
-  res.clearCookie('au');
-  res.redirect('/');
-});
-
 module.exports = router;

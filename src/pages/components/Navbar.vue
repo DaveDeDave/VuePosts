@@ -33,11 +33,11 @@
         </ul>
         <ul v-else class="navbar-nav">
           <li class="nav-item d-none d-lg-block">
-            <a class="btn btn-dark-green fw-bold" type="btn" href="/api/user/logout">{{ $t('message.logout') }}</a>
+            <a class="btn btn-dark-green fw-bold" type="btn" @click="logout()">{{ $t('message.logout') }}</a>
           </li>
           <li class="nav-item d-md-block d-lg-none">
             <div class="dropdown-divider"></div>
-            <a class="nav-link" href="/api/user/logout">{{ $t('message.logout') }}</a>
+            <a class="nav-link" @click="logout()">{{ $t('message.logout') }}</a>
           </li>
         </ul>
       </div>
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+  import axios from 'axios';
+
   export default {
     data() {
       return {
@@ -72,6 +74,12 @@
       search() {
         this.$router.push(`/posts?search=${this.q}`);
         this.q = '';
+      },
+      logout() {
+        axios.defaults.headers.post['XSRF-TOKEN'] = '';
+        document.cookie = '_csrf=;max-age=0';
+        document.cookie = 'au=;max-age=0';
+        this.$router.push(`/`);
       }
     }
   }
