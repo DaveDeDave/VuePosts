@@ -77,7 +77,7 @@
       },
       logout() {
         document.cookie = 'au=;max-age=0';
-        this.$router.go(`/`);
+        this.$router.go(0);
       }
     }
   }
