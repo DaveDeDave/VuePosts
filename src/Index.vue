@@ -18,7 +18,6 @@
       Modals,
     },
     created() {
-      console.log("ricaricato");
       if(document.cookie) {
         let cookies = document.cookie.split('; ');
         let lang = cookies.find(c => c.split('=')[0] == 'lang');
