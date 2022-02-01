@@ -63,7 +63,7 @@ class DB {
       const date = new Date();
       const registrationDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
-      await db.prepare("INSERT INTO user VALUES (?, ?, '', '', '', ?, '', '', false)").run(user.username, hash, registrationDate);
+      await db.prepare("INSERT INTO user VALUES (?, ?, '', '', '', ?, '', '', 0)").run(user.username, hash, registrationDate);
     } catch(e) {
       if(e.message == 'UNIQUE constraint failed: user.username') {
         throw {name: 'UserAlreadyExists'};

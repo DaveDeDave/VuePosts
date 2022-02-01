@@ -66,7 +66,7 @@ router.get('/info/:username', auth.optional, (req, res, next) => {
 router.post('/info/update', csrfProtection, auth.required, (req, res, next) => {
   const { name, surname, email, job, address, privateAccount } = req.body;
 
-  db.updateUserInfo({username: req.user.username, name, surname, email, job, address, privateAccount}).then(() => {
+  db.updateUserInfo({username: req.user.username, name, surname, email, job, address, privateAccount: privateAccount ? 1 : 0}).then(() => {
     res.send({code: 'Success'});
   }).catch(e => next(e));
 });
