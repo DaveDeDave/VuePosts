@@ -125,16 +125,10 @@
           username: this.loginUsername,
           password: this.loginPassword 
         }).then(response => {
-          axios.get('/api/xsrf-token').then(response => {
-            axios.defaults.headers.post['XSRF-TOKEN'] = response.data["xsrf-token"];
-          }).then(r => {
-            this.loginResponseError = this.registrationResponseSuccess = this.registrationResponseError = '';
-            this.loginResponseSuccess = response.data.message;
-            this.joinModal.hide();
-            this.$router.push('/dashboard');
-          }).catch(e => {
-            this.loginResponseError = 'UnknownError';
-          });
+          this.loginResponseError = this.registrationResponseSuccess = this.registrationResponseError = '';
+          this.loginResponseSuccess = response.data.message;
+          this.joinModal.hide();
+          this.$router.push('/dashboard');
         }).catch(e => {
           this.loginResponseSuccess = this.registrationResponseSuccess = this.registrationResponseError = '';
           if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'WrongCredentials') {
@@ -150,16 +144,10 @@
           password: this.registrationPassword,
           passwordCheck: this.registrationPasswordCheck
         }).then(response => {
-          axios.get('/api/xsrf-token').then(response => {
-            axios.defaults.headers.post['XSRF-TOKEN'] = response.data["xsrf-token"];
-          }).then(r => {
-            this.loginResponseSuccess = this.loginResponseError = this.registrationResponseError = '';
-            this.registrationResponseSuccess = response.data.message;
-            this.joinModal.hide();
-            this.$router.push('/dashboard');
-          }).catch(e => {
-            this.loginResponseError = 'UnknownError';
-          });
+          this.loginResponseSuccess = this.loginResponseError = this.registrationResponseError = '';
+          this.registrationResponseSuccess = response.data.message;
+          this.joinModal.hide();
+          this.$router.push('/dashboard');
         }).catch(e => {
             this.loginResponseSuccess = this.loginResponseError = this.registrationResponseSuccess = '';
             if(e.response.data.code == 'EmptyFields' || e.response.data.code == 'DifferentPasswords' || e.response.data.code == 'WeakPassword' || e.response.data.code == 'UserAlreadyExists') {

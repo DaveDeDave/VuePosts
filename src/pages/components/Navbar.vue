@@ -76,10 +76,8 @@
         this.q = '';
       },
       logout() {
-        axios.defaults.headers.post['XSRF-TOKEN'] = '';
-        document.cookie = '_csrf=;max-age=0';
         document.cookie = 'au=;max-age=0';
-        this.$router.push(`/`);
+        this.$router.go(`/`);
       }
     }
   }
