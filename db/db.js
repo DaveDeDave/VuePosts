@@ -21,6 +21,12 @@ class DB {
     const dbName = !test ? './db/db.sqlite' : './db/test/db.sqlite';
 
     fs.access(dbName, async (err) => {
+      if(test && !err) {
+        // in order to reset the test db
+        fs.unlinkSync(dbName);
+        err = 1;
+      }
+
       if(err) {
         const db = new Database(dbName);
         db.pragma('foreign_keys = ON');

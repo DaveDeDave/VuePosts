@@ -35,7 +35,7 @@ app.all('*', auth.optional, (req, res) => {
 });
 
 // SQLITE
-Database.init().catch((e) => {
+Database.init(process.env.TEST).catch((e) => {
   console.log(e);
   process.exit(0);
 });
@@ -44,3 +44,5 @@ Database.init().catch((e) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server started succesfully at localhost:${process.env.PORT || 3000}`)
 });
+
+module.exports = app;

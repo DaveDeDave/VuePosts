@@ -1,6 +1,6 @@
 const authController = require('../controllers/authController');
 const Database = require('../db/db');
-const db = new Database();
+const db = new Database(process.env.TEST);
 
 const getToken = (req) => {
   if(req.cookies.au) {

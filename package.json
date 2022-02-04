@@ -10,7 +10,8 @@
     "dev:server": "node -r dotenv/config app.js",
     "build": "vite build && npm run purgecss",
     "serve": "vite preview",
-    "purgecss": "purgecss --config ./purgecss.config.js"
+    "purgecss": "purgecss --config ./purgecss.config.js",
+    "test": "SET TEST=1 && mocha --timeout 10000 --exit"
   },
   "author": "DaveDeDave",
   "license": "MIT",
@@ -33,8 +34,10 @@
     "@vitejs/plugin-vue": "^1.9.3",
     "axios": "^0.24.0",
     "concurrently": "^6.3.0",
+    "mocha": "^9.2.0",
     "purgecss": "^4.0.3",
     "sass": "^1.43.3",
+    "supertest": "^6.2.2",
     "swiper": "^7.0.0",
     "vite": "^2.6.4",
     "vue": "^3.2.16",

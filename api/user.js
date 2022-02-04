@@ -2,7 +2,7 @@ const express = require('express');
 const csrf = require('csurf');
 const csrfProtection = csrf({ cookie: true });
 const Database = require('../db/db');
-const db = new Database();
+const db = new Database(process.env.TEST);
 const auth = require('../middleware/auth');
 const router = express.Router();
 
